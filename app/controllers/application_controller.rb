@@ -18,6 +18,13 @@ class ApplicationController < Sinatra::Base
 
 	post "/signup" do
 		#your code here!
+		user = User.new(:username => params[:username], :password => params[:password])
+		# bc we have has_secure_password, we can't save this to the db unless pw is filled out
+		if user.save # rtns false if user can't be persisted
+			redirect "/login" # redirects if user is saved
+		else
+			redirect "/failure" # redirects to fail, if can't be saved
+		end
 	end
 
 	get "/login" do
@@ -26,6 +33,13 @@ class ApplicationController < Sinatra::Base
 
 	post "/login" do
 		#your code here!
+		user = User.find_by(:username => params[:username])
+		if user && user.authenticate(params[:password])
+			session[:user_id] = user.id
+			redirect "/success"
+		else
+			refirect "/failure"
+		end
 	end
 
 	get "/success" do
